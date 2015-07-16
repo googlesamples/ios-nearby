@@ -56,38 +56,42 @@ static NSString * const kMyAPIKey = @"<insert API key here>";
   self.window.rootViewController = _navController;
   [self.window makeKeyAndVisible];
 
-  [self askToStartSharing];
+  // Set up the message view navigation buttons.
+  __weak __typeof__(self) weakSelf = self;
+  _nearbyPermission = [[GNSPermission alloc] initWithChangedHandler:^(BOOL granted) {
+    // Keep the Nearby permission button title in sync with the Nearby permission state.
+    weakSelf.messageViewController.leftBarButton = [[UIBarButtonItem alloc]
+                                                    initWithTitle:[NSString stringWithFormat:@"%@ Nearby", granted ? @"Deny" : @"Allow"]
+                                                    style:UIBarButtonItemStyleBordered
+                                                    target:self
+                                                    action:@selector(toggleNearbyPermission)];
+  }];
+  [self setupStartStopButton];
   return YES;
 }
 
-/// Asks the user to share presence and scan for the presence of others.
-- (void)askToStartSharing {
-  // TODO to replace it with UIAlertViewController.
-  UIAlertView *alert =
-      [[UIAlertView alloc] initWithTitle:@"Hello!"
-                                 message:@"Share your presence?"
-                                delegate:self
-                       cancelButtonTitle:@"Yes"
-                       otherButtonTitles:nil];
-  [alert show];
+/// Sets up the right bar button to start or stop sharing, depending on current sharing mode.
+- (void)setupStartStopButton {
+  BOOL isSharing = (_publication != nil);
+  _messageViewController.rightBarButton = [[UIBarButtonItem alloc]
+                                           initWithTitle:isSharing ? @"Stop" : @"Start"
+                                           style:UIBarButtonItemStyleBordered
+                                           target:self
+                                           action:isSharing ? @selector(stopSharing) :  @selector(startSharing)];
 }
 
-/// Stops publishing/subscribing, and ask to share presence.
-- (void)stopAndAskToRestart {
+/// Starts sharing with a randomized name.
+- (void)startSharing {
+  [self startSharingWithName:[NSString stringWithFormat:@"Anonymous %d", arc4random() % 100]];
+  [self setupStartStopButton];
+}
+
+/// Stops publishing/subscribing.
+- (void)stopSharing {
   _publication = nil;
   _subscription = nil;
   _messageMgr = nil;
-
   _messageViewController.title = @"";
-  _messageViewController.leftBarButton = nil;
-  _messageViewController.rightBarButton = nil;
-
-  [self askToStartSharing];
-}
-
-/// UIAlertView delegate method.
-- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
-  [self startSharingWithName:[NSString stringWithFormat:@"Anonymous %d", arc4random() % 100]];
 }
 
 /// Toggles the permission state of Nearby.
@@ -95,7 +99,8 @@ static NSString * const kMyAPIKey = @"<insert API key here>";
   [GNSPermission setGranted:![GNSPermission isGranted]];
 }
 
-/// Starts publishing my name and subscribing for nearby devices that are publishing their names.
+/// Starts publishing the specified name and scanning for nearby devices that are publishing
+/// their names.
 - (void)startSharingWithName:(NSString *)name {
   // Create the message manager, which lets you publish messages and subscribe to messages
   // published by nearby devices.
@@ -130,20 +135,6 @@ static NSString * const kMyAPIKey = @"<insert API key here>";
 
     // Show the name in the message view title and set up the Stop button.
     _messageViewController.title = name;
-    _messageViewController.rightBarButton = [[UIBarButtonItem alloc]
-        initWithTitle:@"Stop"
-                style:UIBarButtonItemStyleBordered
-               target:self
-               action:@selector(stopAndAskToRestart)];
-
-    // Keep the Nearby permission button title in sync with the Nearby permission state.
-    _nearbyPermission = [[GNSPermission alloc] initWithChangedHandler:^(BOOL granted) {
-      weakSelf.messageViewController.leftBarButton = [[UIBarButtonItem alloc]
-          initWithTitle:[NSString stringWithFormat:@"%@ Nearby", granted ? @"Deny" : @"Allow"]
-                  style:UIBarButtonItemStyleBordered
-                 target:self
-                 action:@selector(toggleNearbyPermission)];
-    }];
 
     // Publish the name to nearby devices.
     GNSMessage *pubMessage =

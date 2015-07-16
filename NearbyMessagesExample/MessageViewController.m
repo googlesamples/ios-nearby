@@ -48,7 +48,7 @@ static NSString *cellIdentifier = @"messageCell";
 }
 
 - (void)addMessage:(NSString *)message {
-  [_messages addObject:message];
+  [_messages addObject:[message copy]];
   [self.tableView reloadData];
 }
 

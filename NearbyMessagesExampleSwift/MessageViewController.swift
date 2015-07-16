@@ -58,7 +58,7 @@ class MessageViewController: UITableViewController {
   }
 
   func addMessage(message: String!) {
-    messages.addObject(message)
+    messages.addObject(message.copy())
     tableView.reloadData()
   }
 
