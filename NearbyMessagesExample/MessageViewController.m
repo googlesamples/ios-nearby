@@ -29,7 +29,7 @@ static NSString *cellIdentifier = @"messageCell";
 
 - (void)viewDidLoad {
   [super viewDidLoad];
-  [self updateRightButton];
+  [self.tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:cellIdentifier];
 
   _messages = [NSMutableArray array];
 }
@@ -43,8 +43,11 @@ static NSString *cellIdentifier = @"messageCell";
 }
 
 - (void)setRightBarButton:(UIBarButtonItem *)rightBarButton {
-  _rightBarButton = rightBarButton;
-  [self updateRightButton];
+  self.navigationItem.rightBarButtonItem = rightBarButton;
+}
+
+- (UIBarButtonItem *)rightBarButton {
+  return self.navigationItem.rightBarButtonItem;
 }
 
 - (void)addMessage:(NSString *)message {
@@ -79,12 +82,6 @@ static NSString *cellIdentifier = @"messageCell";
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
   [tableView deselectRowAtIndexPath:indexPath animated:YES];
-}
-
-#pragma mark - Private
-
-- (void)updateRightButton {
-  self.navigationItem.rightBarButtonItem = _rightBarButton;
 }
 
 @end

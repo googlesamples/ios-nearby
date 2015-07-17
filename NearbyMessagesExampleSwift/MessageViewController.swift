@@ -33,14 +33,12 @@ class MessageViewController: UITableViewController {
   * The right button to use in the nav bar.
   */
   var rightBarButton: UIBarButtonItem!
-  var tableView: UITableView!
   var messages: [String]
 
   override func viewDidLoad() {
     super.viewDidLoad()
+    tableView.registerClass(aClass: UITableViewCell.classForCoder(), forCellReuseIdentifier: cellIdentifier)
 
-    makeTable()
-    updateRightButton()
     messages = []
   }
 
@@ -53,8 +51,11 @@ class MessageViewController: UITableViewController {
   }
 
   func setRightBarButton(rightBarButton: UIBarButtonItem!) {
-    self.rightBarButton = rightBarButton
-    updateRightButton()
+    navigationItem.rightBarButtonItem = rightBarButton
+  }
+
+  func rightBarButton() -> UIBarButtonItem! {
+    return navigationItem.rightBarButtonItem
   }
 
   func addMessage(message: String!) {
@@ -90,9 +91,4 @@ class MessageViewController: UITableViewController {
     tableView.deselectRowAtIndexPath(indexPath: indexPath, animated: true)
   }
 
-// MARK: Private
-
-  func updateRightButton() {
-    navigationItem.rightBarButtonItem = rightBarButton
-  }
 }

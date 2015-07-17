@@ -22,7 +22,7 @@
 /**
  * @interface
  * This class displays a list of messages in a scrolling table view.
- * You can also customize the button to use as the right button in the nav bar.
+ * You can also customize the button to use as the right or left button in the nav bar.
  */
 @interface MessageViewController : UITableViewController
 
