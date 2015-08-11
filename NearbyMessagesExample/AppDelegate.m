@@ -67,6 +67,39 @@ static NSString * const kMyAPIKey = @"<insert API key here>";
                                                     action:@selector(toggleNearbyPermission)];
   }];
   [self setupStartStopButton];
+
+  // Enable debug logging to help track down problems.
+  [GNSMessageManager setDebugLoggingEnabled:YES];
+
+  // Create the message manager, which lets you publish messages and subscribe to messages
+  // published by nearby devices.
+  void (^showMessage)(NSString *message) = ^(NSString *message) {
+    NSLog(@"%@", message);
+  };
+
+  _messageMgr = [[GNSMessageManager alloc]
+                 initWithAPIKey:kMyAPIKey
+                 paramsBlock: ^(GNSMessageManagerParams *params) {
+                   // This is called when microphone permission is enabled or disabled by the user.
+                   params.microphonePermissionErrorHandler = ^(BOOL hasError) {
+                     if (hasError) {
+                       showMessage(@"Nearby works better if microphone use is allowed");
+                     }
+                   };
+                   // This is called when Bluetooth permission is enabled or disabled by the user.
+                   params.bluetoothPermissionErrorHandler = ^(BOOL hasError) {
+                     if (hasError) {
+                       showMessage(@"Nearby works better if Bluetooth use is allowed");
+                     }
+                   };
+                   // This is called when Bluetooth is powered on or off by the user.
+                   params.bluetoothPowerErrorHandler = ^(BOOL hasError) {
+                     if (hasError) {
+                       showMessage(@"Nearby works better if Bluetooth is turned on");
+                     }
+                   };
+                 }];
+
   return YES;
 }
 
@@ -90,7 +123,6 @@ static NSString * const kMyAPIKey = @"<insert API key here>";
 - (void)stopSharing {
   _publication = nil;
   _subscription = nil;
-  _messageMgr = nil;
   _messageViewController.title = @"";
 }
 
@@ -102,34 +134,6 @@ static NSString * const kMyAPIKey = @"<insert API key here>";
 /// Starts publishing the specified name and scanning for nearby devices that are publishing
 /// their names.
 - (void)startSharingWithName:(NSString *)name {
-  // Create the message manager, which lets you publish messages and subscribe to messages
-  // published by nearby devices.
-  void (^showMessage)(NSString *message) = ^(NSString *message) {
-    NSLog(@"%@", message);
-  };
-
-  _messageMgr = [[GNSMessageManager alloc]
-      initWithAPIKey:kMyAPIKey
-         paramsBlock: ^(GNSMessageManagerParams *params) {
-           // This is called when microphone permission is enabled or disabled by the user.
-           params.microphonePermissionErrorHandler = ^(BOOL hasError) {
-             if (hasError) {
-               showMessage(@"Nearby works better if microphone use is allowed");
-             }
-           };
-           // This is called when Bluetooth permission is enabled or disabled by the user.
-           params.bluetoothPermissionErrorHandler = ^(BOOL hasError) {
-             if (hasError) {
-               showMessage(@"Nearby works better if Bluetooth use is allowed");
-             }
-           };
-           // This is called when Bluetooth is powered on or off by the user.
-           params.bluetoothPowerErrorHandler = ^(BOOL hasError) {
-             if (hasError) {
-               showMessage(@"Nearby works better if Bluetooth is turned on");
-             }
-           };
-         }];
   if (_messageMgr) {
     __weak __typeof__(self) weakSelf = self;
 

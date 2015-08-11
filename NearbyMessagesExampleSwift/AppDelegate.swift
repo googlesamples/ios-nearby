@@ -57,37 +57,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       weakSelf?.messageViewController.leftBarButton = UIBarButtonItem(title: String(format: "%@ Nearby", granted ? "Deny" : "Allow"), style: .Bordered, target: self, action: toggleNearbyPermission)
     })
     setupStartStopButton()
-    return true;
-  }
 
-  /// Sets up the right bar button to start or stop sharing, depending on current sharing mode.
-  func setupStartStopButton {
-    let isSharing = (publication != nil)
-    messageViewController.rightBarButton = UIBarButtonItem(title: isSharing ? "Stop" : "Start", style: .Bordered, target: self, action: isSharing ? stopSharing :  startSharing)
-  }
+    // Enable debug logging to help track down problems.
+    GNSMessageManager.setDebugLoggingEnabled(true)
 
-  /// Starts sharing with a randomized name.
-  func startSharing {
-    startSharingWithName(String(format:"Anonymous %d", arc4random() % 100))
-    setupStartStopButton()
-  }
-
-  /// Stops publishing/subscribing.
-  - (void)stopSharing {
-    publication = nil
-    subscription = nil
-    messageMgr = nil
-    messageViewController.title = ""
-  }
-
-  /// Toggles the permission state of Nearby.
-  func toggleNearbyPermission() {
-    GNSPermission.setGranted(!GNSPermission.isGranted())
-  }
-
-  /// Starts publishing the specified name and scanning for nearby devices that are publishing
-  /// their names.
-  func startSharingWithName(name: String) {
     // Create the message manager, which lets you publish messages and subscribe to messages
     // published by nearby devices.
     messageMgr = GNSMessageManager(APIKey: kMyAPIKey, paramsBlock: { (params: GNSMessageManagerParams!) -> Void in
@@ -110,6 +83,37 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
       }
     })
+
+    return true
+  }
+
+  /// Sets up the right bar button to start or stop sharing, depending on current sharing mode.
+  func setupStartStopButton {
+    let isSharing = (publication != nil)
+    messageViewController.rightBarButton = UIBarButtonItem(title: isSharing ? "Stop" : "Start", style: .Bordered, target: self, action: isSharing ? stopSharing :  startSharing)
+  }
+
+  /// Starts sharing with a randomized name.
+  func startSharing {
+    startSharingWithName(String(format:"Anonymous %d", arc4random() % 100))
+    setupStartStopButton()
+  }
+
+  /// Stops publishing/subscribing.
+  - (void)stopSharing {
+    publication = nil
+    subscription = nil
+    messageViewController.title = ""
+  }
+
+  /// Toggles the permission state of Nearby.
+  func toggleNearbyPermission() {
+    GNSPermission.setGranted(!GNSPermission.isGranted())
+  }
+
+  /// Starts publishing the specified name and scanning for nearby devices that are publishing
+  /// their names.
+  func startSharingWithName(name: String) {
     if (messageMgr) {
       weak var weakSelf = self
       // Show the name in the message view title and set up the Stop button.
