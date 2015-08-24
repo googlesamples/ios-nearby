@@ -9,6 +9,7 @@ To use this application,
  1. Enable the Google Nearby Messages API.
  1. Create an API key for Android, using your SHA1 and package name.
 1. Plug in your API key into AppDelegate.m
+1. Make sure the bundle ID in Info.plist file matches the bundle ID in your project at [Google Developers Console](https://console.developers.google.com).
 
 ## How to make contributions?
 Please read and follow the steps in the [CONTRIBUTING.md](CONTRIBUTING.md)
