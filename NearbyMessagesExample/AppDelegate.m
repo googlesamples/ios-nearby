@@ -124,6 +124,7 @@ static NSString * const kMyAPIKey = @"<insert API key here>";
   _publication = nil;
   _subscription = nil;
   _messageViewController.title = @"";
+  [self setupStartStopButton];
 }
 
 /// Toggles the permission state of Nearby.
