@@ -26,45 +26,45 @@ class MessageViewController: UITableViewController {
   * @property
   * The left button to use in the nav bar.
   */
-  var leftBarButton: UIBarButtonItem!
+  var leftBarButton: UIBarButtonItem! {
+    get {
+      return navigationItem.leftBarButtonItem
+    }
+    set(leftBarButton) {
+      navigationItem.leftBarButtonItem = leftBarButton
+    }
+  }
 
   /**
   * @property
   * The right button to use in the nav bar.
   */
-  var rightBarButton: UIBarButtonItem!
-  var messages: [String]
+  var rightBarButton: UIBarButtonItem! {
+    get {
+      return navigationItem.rightBarButtonItem
+    }
+    set(rightBarButton) {
+      navigationItem.rightBarButtonItem = rightBarButton
+    }
+  }
+
+  var messages = [String]()
 
   override func viewDidLoad() {
     super.viewDidLoad()
-    tableView.registerClass(aClass: UITableViewCell.classForCoder(), forCellReuseIdentifier: cellIdentifier)
-
-    messages = []
-  }
-
-  func setLeftBarButton(leftBarButton: UIBarButtonItem!) {
-    navigationItem.leftBarButtonItem = leftBarButton
-  }
-
-  func leftBarButton() -> UIBarButtonItem! {
-    return navigationItem.leftBarButtonItem
-  }
-
-  func setRightBarButton(rightBarButton: UIBarButtonItem!) {
-    navigationItem.rightBarButtonItem = rightBarButton
-  }
-
-  func rightBarButton() -> UIBarButtonItem! {
-    return navigationItem.rightBarButtonItem
+    tableView.registerClass(UITableViewCell.classForCoder(), forCellReuseIdentifier: cellIdentifier)
   }
 
   func addMessage(message: String!) {
-    messages.addObject(message.copy())
+    messages.append(message.copy() as! String)
     tableView.reloadData()
   }
 
   func removeMessage(message: String!) {
-    messages.removeObject(message)
+    if let index = messages.indexOf(message)
+    {
+      messages.removeAtIndex(index)
+    }
     tableView.reloadData()
   }
 
@@ -79,7 +79,7 @@ class MessageViewController: UITableViewController {
   }
 
   override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-    let cell: UITableViewCell! = tableView.dequeueReusableCellWithIdentifier(identifier: cellIdentifier, forIndexPath: indexPath)
+    let cell: UITableViewCell! = tableView.dequeueReusableCellWithIdentifier(cellIdentifier, forIndexPath: indexPath)
     cell.textLabel?.text = messages[indexPath.row]
     return cell
   }
@@ -88,7 +88,7 @@ class MessageViewController: UITableViewController {
 // MARK: - UItableViewDelegate
 
   override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-    tableView.deselectRowAtIndexPath(indexPath: indexPath, animated: true)
+    tableView.deselectRowAtIndexPath(indexPath, animated: true)
   }
 
 }
