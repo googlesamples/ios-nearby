@@ -126,17 +126,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       messageViewController.title = name
 
       // Publish the name to nearby devices.
-      let pubMessage: GNSMessage = GNSMessage(content: name.data(using: String.Encoding.utf8,
+      let pubMessage: GNSMessage = GNSMessage(content: name.data(using: .utf8,
         allowLossyConversion: true))
       publication = messageMgr.publication(with: pubMessage)
 
       // Subscribe to messages from nearby devices and display them in the message view.
       subscription = messageMgr.subscription(messageFoundHandler: {[unowned self] (message: GNSMessage?) -> Void in
         guard let message = message else { return }
-        self.messageViewController.addMessage(String(data: message.content, encoding:String.Encoding.utf8))
+        self.messageViewController.addMessage(String(data: message.content, encoding:.utf8))
       }, messageLostHandler: {[unowned self](message: GNSMessage?) -> Void in
         guard let message = message else { return }
-        self.messageViewController.removeMessage(String(data: message.content, encoding: String.Encoding.utf8))
+        self.messageViewController.removeMessage(String(data: message.content, encoding: .utf8))
       })
     }
   }
