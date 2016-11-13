@@ -1,2 +1,5 @@
 platform :ios, '7.0'
-pod 'NearbyMessages'
+
+target 'NearbyBackground' do
+  pod 'NearbyMessages'
+end
