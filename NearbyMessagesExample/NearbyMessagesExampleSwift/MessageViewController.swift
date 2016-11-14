@@ -52,34 +52,34 @@ class MessageViewController: UITableViewController {
 
   override func viewDidLoad() {
     super.viewDidLoad()
-    tableView.registerClass(UITableViewCell.classForCoder(), forCellReuseIdentifier: cellIdentifier)
+    tableView.register(UITableViewCell.classForCoder(), forCellReuseIdentifier: cellIdentifier)
   }
 
-  func addMessage(message: String!) {
+  func addMessage(_ message: String!) {
     messages.append(message.copy() as! String)
     tableView.reloadData()
   }
 
-  func removeMessage(message: String!) {
-    if let index = messages.indexOf(message)
+  func removeMessage(_ message: String!) {
+    if let index = messages.index(of: message)
     {
-      messages.removeAtIndex(index)
+      messages.remove(at: index)
     }
     tableView.reloadData()
   }
 
 // MARK: - UITableViewDataSource
 
-  override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
+  override func numberOfSections(in tableView: UITableView) -> Int {
     return 1
   }
 
-  override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+  override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
     return messages.count
   }
 
-  override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-    let cell: UITableViewCell! = tableView.dequeueReusableCellWithIdentifier(cellIdentifier, forIndexPath: indexPath)
+  override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    let cell: UITableViewCell! = tableView.dequeueReusableCell(withIdentifier: cellIdentifier, for: indexPath)
     cell.textLabel?.text = messages[indexPath.row]
     return cell
   }
@@ -87,8 +87,8 @@ class MessageViewController: UITableViewController {
 
 // MARK: - UItableViewDelegate
 
-  override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-    tableView.deselectRowAtIndexPath(indexPath, animated: true)
+  override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+    tableView.deselectRow(at: indexPath, animated: true)
   }
 
 }
