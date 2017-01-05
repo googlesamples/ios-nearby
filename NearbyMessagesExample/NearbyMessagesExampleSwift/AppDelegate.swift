@@ -44,8 +44,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   var navController: UINavigationController!
   var messageViewController: MessageViewController!
 
-  func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
-    window = UIWindow(frame: UIScreen.mainScreen().bounds)
+  func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
+    window = UIWindow(frame: UIScreen.main.bounds)
     messageViewController = MessageViewController()
     navController = UINavigationController(rootViewController: messageViewController)
     window?.rootViewController = navController
@@ -55,7 +55,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     nearbyPermission = GNSPermission(changedHandler: {[unowned self] granted in
       self.messageViewController.leftBarButton =
         UIBarButtonItem(title: String(format: "%@ Nearby", granted ? "Deny" : "Allow"),
-          style: UIBarButtonItemStyle.Bordered, target: self, action: "toggleNearbyPermission")
+          style: .plain, target: self, action: #selector(AppDelegate.toggleNearbyPermission))
       })
     setupStartStopButton()
 
@@ -64,8 +64,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     // Create the message manager, which lets you publish messages and subscribe to messages
     // published by nearby devices.
-    messageMgr = GNSMessageManager(APIKey: kMyAPIKey,
-      paramsBlock: {(params: GNSMessageManagerParams!) -> Void in
+    messageMgr = GNSMessageManager(apiKey: kMyAPIKey,
+      paramsBlock: {(params: GNSMessageManagerParams?) -> Void in
+        guard let params = params else { return }
+
         // This is called when microphone permission is enabled or disabled by the user.
         params.microphonePermissionErrorHandler = { hasError in
           if (hasError) {
@@ -93,13 +95,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   func setupStartStopButton() {
     let isSharing = (publication != nil)
     messageViewController.rightBarButton = UIBarButtonItem(title: isSharing ? "Stop" : "Start",
-      style: UIBarButtonItemStyle.Bordered,
-      target: self, action: isSharing ? "stopSharing" :  "startSharing")
+      style: .plain,
+      target: self, action: isSharing ? #selector(AppDelegate.stopSharing) :  #selector(AppDelegate.startSharingWithRandomName))
   }
 
   /// Starts sharing with a randomized name.
-  func startSharing() {
-    startSharingWithName(String(format:"Anonymous %d", arc4random() % 100))
+  func startSharingWithRandomName() {
+    startSharing(withName: String(format:"Anonymous %d", arc4random() % 100))
     setupStartStopButton()
   }
 
@@ -118,23 +120,24 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
   /// Starts publishing the specified name and scanning for nearby devices that are publishing
   /// their names.
-  func startSharingWithName(name: String) {
+  func startSharing(withName name: String) {
     if let messageMgr = self.messageMgr {
       // Show the name in the message view title and set up the Stop button.
       messageViewController.title = name
 
       // Publish the name to nearby devices.
-      let pubMessage: GNSMessage = GNSMessage(content: name.dataUsingEncoding(NSUTF8StringEncoding,
+      let pubMessage: GNSMessage = GNSMessage(content: name.data(using: .utf8,
         allowLossyConversion: true))
-      publication = messageMgr.publicationWithMessage(pubMessage)
+      publication = messageMgr.publication(with: pubMessage)
 
       // Subscribe to messages from nearby devices and display them in the message view.
-      subscription = messageMgr.subscriptionWithMessageFoundHandler({[unowned self] (message: GNSMessage!) -> Void in
-        self.messageViewController.addMessage(String(data: message.content, encoding:NSUTF8StringEncoding))
-        }, messageLostHandler: {[unowned self](message: GNSMessage!) -> Void in
-          self.messageViewController.removeMessage(String(data: message.content, encoding: NSUTF8StringEncoding))
-        })
+      subscription = messageMgr.subscription(messageFoundHandler: {[unowned self] (message: GNSMessage?) -> Void in
+        guard let message = message else { return }
+        self.messageViewController.addMessage(String(data: message.content, encoding:.utf8))
+      }, messageLostHandler: {[unowned self](message: GNSMessage?) -> Void in
+        guard let message = message else { return }
+        self.messageViewController.removeMessage(String(data: message.content, encoding: .utf8))
+      })
     }
   }
 }
-
